@@ -141,6 +141,7 @@ class Simdex:
     * get_parameter(par): to be merged in get_values!!
     - save(filename): saves the simdex by pickling (cPickle) to filename.  The 
       simdex can be loaded later on with the function load_simdex(filename)
+    - postproc(ppparameters, ppvariables) processes all parameters and variables in the defined process   
       
     FEATURES:
     - all found .mat files are tested.  If they to not have the structure of
@@ -186,6 +187,8 @@ class Simdex:
         
         self.process = process
         
+        self.parameters_processed=dict()
+        self.variables_processed=dict()
         # The pytables file to which this simdex is linked
         # Will be created in the current work directory, check first if it exists
         self.h5_path = os.path.join(os.getcwd(), h5)
@@ -1330,10 +1333,27 @@ class Simdex:
         
         return filename + ' created'
         
-    def postproc(self):
-        """Run the post-processing"""
-        pass
-    
+    def postproc(self, ppparameters=True, ppvariables=False):
+        """
+        Run the post-processing if process object is defined the simdex.
+        The parameters and variables in process are stored in parameters_processed and variables_processed
+        
+        """
+        
+        if self.process != None:
+            if ppparameters:
+                for name, ref_name in self.process.parameters.iteritems():
+                    self.parameters_processed[name]= self.get(ref_name).values()
+                print 'process parameters', 'values\n'
+                for i, p in self.parameters_processed.iteritems():
+                    print i, ' ', p
+            if ppvariables:
+                for name, rename in self.process.variables.iteritems():
+                    self.variables_processed[name] = self.get(ref_name).values()
+            
+            
+                
+                
     def apply(self, function_call):
         """
         Apply the function_call to each variable in each simulation.
