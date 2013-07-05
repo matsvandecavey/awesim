@@ -1343,8 +1343,12 @@ class Simdex:
         if self.process != None:
             if ppparameters:
                 for name, ref_name in self.process.parameters.iteritems():
-                    self.parameters_processed[name]= self.get(ref_name).values()
-                print 'process parameters', 'values\n'
+                    # postproc() geeft een error als een van de attributes niet gevonden kan worden.
+                    try:
+                        self.parameters_processed[name]= self.get(ref_name).values()
+                    except: AttributeError
+                                        
+#                print '%s', '%g\n' % ref_name, parameters_processed[name]
                 for i, p in self.parameters_processed.iteritems():
                     print i, ' ', p
             if ppvariables:
