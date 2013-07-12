@@ -959,7 +959,7 @@ class Simdex:
             # is still in the run for selection
         else:
             # satisfyingmap has to be known.  
-            # In this case a boolean array with only True values
+            # In this case a boolean array with only False values
             satisfyingmap = np.array(range(len(self.simulations)))>-1
         
         # now we need to get only the rows for which the values matter
@@ -1015,7 +1015,7 @@ class Simdex:
             # again a boolean array
         else:
             # satisfyingval has to be known.  
-            # In this case a boolean array with only True values
+            # In this case a boolean array with only False values
             satisfyingval = np.array(range(len(self.simulations))) > -1
             
         

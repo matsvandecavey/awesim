@@ -1326,9 +1326,9 @@ suite5 = unittest.TestLoader().loadTestsFromTestCase(UtilitiesTest)
 
 alltests = unittest.TestSuite()
 alltests.addTest(SimdexTest('test_filter_larger'))
-#alltests.addTest(SimdexTest('test_filter_smaller'))
-#alltests.addTest(SimdexTest('test_filter_multiple'))
-#alltests.addTest(SimdexTest('test_filter_multiple_no_value'))
+alltests.addTest(SimdexTest('test_filter_smaller'))
+alltests.addTest(SimdexTest('test_filter_multiple'))
+alltests.addTest(SimdexTest('test_filter_multiple_no_value'))
 unittest.TextTestRunner(verbosity=1).run(alltests)
 #unittest.TextTestRunner(verbosity=1).run(suite3)
 
