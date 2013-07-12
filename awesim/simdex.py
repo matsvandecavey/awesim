@@ -902,7 +902,7 @@ class Simdex:
         return newsimdex    
     
     
-    def filter(self, pardic):
+    def filter(self, pardic, tolerance = 0.005, selection_mode=None):
         '''
         Return a new simdex, filtered with the criteria as in pardic
         
@@ -924,8 +924,8 @@ class Simdex:
         
         # I select the rows by creating another array with the row numbers
         # and slice self.parametermap and self.parametervalues with that array
-        
-        tolerance = 0.005        
+        pardic_tol=.0005
+             
         # list of rownumbers from self.parameters with concerned parameters
         rows = []
         values = []    
@@ -933,11 +933,11 @@ class Simdex:
             rows.append(self.parameters.index(i))
             values.append(pardic[i])
         
+        values = [None if x == '' else x for x in values]
         values = np.array(values)
         arows = np.array(rows)
         reduced_par_map = self.parametermap[arows]
         reduced_par_val = self.parametervalues[arows]
-        
         
             
         # next step: remove all simulations that do NOT have the parameters
@@ -946,7 +946,7 @@ class Simdex:
         # get row numbers of rows in reduced_par_map where the value doesn't 
         # matter
         parmaprows = np.array([x for (x, y) in zip(range(len(pardic)), \
-            pardic.values()) if y==''])
+            pardic.values()) if y in ['', None]])
         
         # if there are no parmaprows, we don't need to filter on empty strings
         if len(parmaprows)>0:
@@ -959,31 +959,69 @@ class Simdex:
             # is still in the run for selection
         else:
             # satisfyingmap has to be known.  
-            # In this case a boolean array with only True values
+            # In this case a boolean array with only False values
             satisfyingmap = np.array(range(len(self.simulations)))>-1
         
         # now we need to get only the rows for which the values matter
         # and compare those values for each simulation with 'values'
         parvalrows = np.array([x for (x, y) in zip(range(len(pardic)), \
-            pardic.values()) if y != ''])
+            pardic.values()) if y not in ['', None]])
         if len(parvalrows) > 0:
             selval = reduced_par_val[parvalrows]
             values = values[parvalrows]
-            # we do not compare the values directly, but allow deviations 
-            # smaller than tolerance.  
-            abs_diff_values = np.abs(selval - values)
-            satisfyingval = np.all(abs_diff_values < (tolerance * values), 
-                                   axis = 0)
+            if selection_mode is str:
+                selection_mode= dict(zip(pardic.keys(), selection_mode*len(pardic)))
+            if selection_mode==None:
+                # we do not compare the values directly, but allow deviations 
+                # smaller than tolerance.
+                abs_diff_values = np.abs(selval - values)
+                satisfyingval = np.all(abs_diff_values < (tolerance * values), 
+                                       axis = 0)
+            else:
+                # We determine the parameter band for every variable
+                selection_mode_boolean=[]
+                # Selection mode only the for the parameters with a value
+                my_parameters= [x for (x,y) in zip(pardic.keys(),pardic.values()) if y not in ['', None]]
+                if type(selection_mode) == str:
+                    # set selection_mode value for all parameters
+                    selection_mode = dict(zip(my_parameters,np.repeat(selection_mode,len(my_parameters))))
+                # Iterate over parameters
+                for i, v in enumerate(my_parameters):
+                    # Not all the pardic parameters have to be in the selection_mode dict.
+                    # If not in the dict, the value band is not applied
+                    try:
+                        if selection_mode[v] in ['larger', 'l', 'Larger', 'L']:
+                            # for computing the band with larger values we want to 
+                            # determine the higher band using 1x(selval - values)
+                            selection_mode_boolean.append(1)
+                        elif selection_mode[v] in ['smaller','s', 'Smaller', 'S']:
+                            # for computing the band with smaller values we want to 
+                            # determine the lower band using -1x(selval - values)
+                            selection_mode_boolean.append(-1)
+                        else:                  
+                            # Create KeyError exception to prevent code duplication
+                            selection_mode[None]
+                    except KeyError:
+                        selection_mode_boolean.append(0)
+                        print 'Not a valid selection_mode for parameter %g' %pardic[v]
+                        
+                aselection_mode_boolean = np.array(selection_mode_boolean)
+                diff_values=(np.transpose(selval)-values)*aselection_mode_boolean
+                satisfyingval=np.transpose(np.all((diff_values < (tolerance * values))*(diff_values > -(pardic_tol* values)), 
+                                       axis = 1))
+                                       
+                                           
+                                               
             # again a boolean array
         else:
             # satisfyingval has to be known.  
-            # In this case a boolean array with only True values
+            # In this case a boolean array with only False values
             satisfyingval = np.array(range(len(self.simulations))) > -1
             
         
         # only simulations satisfying both the requirements are selected
         # first (dummy) row of self.simulations has also to be kept
-        satisfying = satisfyingmap & satisfyingval
+        satisfying = satisfyingmap * satisfyingval
                 
         # we create a new simdex object, with identical properties as self
         # but containing only the simulations we have selected
