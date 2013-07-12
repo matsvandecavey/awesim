@@ -86,6 +86,8 @@ class Simulation:
                     dataInfo = np.row_stack((dataInfo, row))
                     
                 name = s.split('# ')[-1].strip()
+                if name=='time':
+                    name='Time'
                 if names == None:
                     names = [name]
                 else:

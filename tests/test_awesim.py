@@ -1050,7 +1050,83 @@ class SimdexTest(unittest.TestCase):
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
         self.simdex.h5.close()
-    
+        
+    def test_filter_larger(self):
+        """Simdex.filter() selects all simulations with the indicated parameter\
+        that has a value in the tolerance band 1..1+tolerance
+        """
+        filt_dic = {'r.R': 5.5}
+        tolerance=.46
+        selection_mode= {'r.R': 'Larger'}
+        self.simdex_filtered = self.simdex.filter(filt_dic, tolerance=tolerance,selection_mode=selection_mode)
+        self.simdex_filtered_fn = self.simdex_filtered.get_filenames()
+        self.simdex_filtered_fn.sort()
+        exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat']
+        exp_result.sort()
+        self.assertEqual(exp_result, self.simdex_filtered_fn,
+                         'filtering self.simdex with r.R = 5.55 (1..1+Tol) should return\
+                         exp_result')
+        self.assertEqual(filt_dic, self.simdex_filtered.filterset,
+                         'After filtering, filterset has to be updated')
+        self.simdex.h5.close()
+        
+    def test_filter_smaller(self):
+        """Simdex.filter() selects all simulations with the indicated parameter\
+        that has a value in the tolerance band 1-tolerance .. 1
+        """
+        filt_dic = {'r.R': 5.5}
+        tolerance=.46
+        selection_mode= 'Smaller'
+        self.simdex_filtered = self.simdex.filter(filt_dic, tolerance=tolerance,selection_mode=selection_mode)
+        self.simdex_filtered_fn = self.simdex_filtered.get_filenames()
+        self.simdex_filtered_fn.sort()
+        exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities.mat', 'LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_F.mat']
+        exp_result.sort()
+        self.assertEqual(exp_result, self.simdex_filtered_fn,
+                         'filtering self.simdex with r.R = 5.55 (1..1-Tol) should return\
+                         exp_result')
+        self.assertEqual(filt_dic, self.simdex_filtered.filterset,
+                         'After filtering, filterset has to be updated')
+        self.simdex.h5.close()
+        
+    def test_filter_multiple(self):
+        """Simdex.filter() selects all simulations with the indicated parameter\
+        that has a value in the tolerance band 1-tolerance .. 1
+        """
+        filt_dic = {'r.R': 5.5, 'c1.C':700}
+        tolerance=.46
+        selection_mode= {'r.R': 'Smaller', 'c1.C':'Larger'}
+        self.simdex_filtered = self.simdex.filter(filt_dic, tolerance=tolerance,selection_mode=selection_mode)
+        self.simdex_filtered_fn = self.simdex_filtered.get_filenames()
+        self.simdex_filtered_fn.sort()
+        exp_result = ['LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities_F.mat']
+        exp_result.sort()
+        self.assertEqual(exp_result, self.simdex_filtered_fn,
+                         'filtering self.simdex with r.R = 5.55 (1..1-Tol) should return\
+                         exp_result')
+        self.assertEqual(filt_dic, self.simdex_filtered.filterset,
+                         'After filtering, filterset has to be updated')
+        self.simdex.h5.close()
+
+    def test_filter_multiple_no_value(self):
+        """Simdex.filter() selects all simulations with the indicated parameter\
+        that has a value in the tolerance band 1-tolerance .. 1
+        """
+        filt_dic = {'r.R': 5.5, 'c1.C':''}
+        tolerance=.46
+        selection_mode= 'Smaller'
+        self.simdex_filtered = self.simdex.filter(filt_dic, tolerance=tolerance,selection_mode=selection_mode)
+        self.simdex_filtered_fn = self.simdex_filtered.get_filenames()
+        self.simdex_filtered_fn.sort()
+        exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities.mat', 'LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_F.mat']
+        exp_result.sort()
+        self.assertEqual(exp_result, self.simdex_filtered_fn,
+                         'filtering self.simdex with r.R = 5.55 (1..1-Tol) should return\
+                         exp_result')
+        self.assertEqual(filt_dic, self.simdex_filtered.filterset,
+                         'After filtering, filterset has to be updated')
+        self.simdex.h5.close()
+        
     def test_plot(self):
         """Simdex.plot() should return [fig, lines, leg]"""
         
@@ -1248,8 +1324,11 @@ suite4 = unittest.TestLoader().loadTestsFromTestCase(SimdexTest)
 suite5 = unittest.TestLoader().loadTestsFromTestCase(UtilitiesTest)
 
 
-alltests = unittest.TestSuite([suite1, suite2, suite3, suite4, suite5])
-
-#unittest.TextTestRunner(verbosity=1, failfast=False).run(alltests)
-unittest.TextTestRunner(verbosity=1).run(suite3)
+alltests = unittest.TestSuite()
+alltests.addTest(SimdexTest('test_filter_larger'))
+alltests.addTest(SimdexTest('test_filter_smaller'))
+alltests.addTest(SimdexTest('test_filter_multiple'))
+alltests.addTest(SimdexTest('test_filter_multiple_no_value'))
+unittest.TextTestRunner(verbosity=1).run(alltests)
+#unittest.TextTestRunner(verbosity=1).run(suite3)
 
