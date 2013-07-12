@@ -1064,7 +1064,7 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.55 (1..1+Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1+Tol) should return\
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
@@ -1083,7 +1083,7 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities.mat', 'LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_F.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.55 (1..1-Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return\
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
@@ -1102,13 +1102,13 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities_F.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.55 (1..1-Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return\
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
         self.simdex.h5.close()
 
-    def test_filter_multiple_no_value(self):
+    def test_filter_multiple_pars_no_value(self):
         """Simdex.filter() selects all simulations with the indicated parameter\
         that has a value in the tolerance band 1-tolerance .. 1
         """
@@ -1121,12 +1121,23 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities.mat', 'LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_F.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.55 (1..1-Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return\
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
         self.simdex.h5.close()
         
+    def parameter_range_test(self):
+        """
+        searches the min and the max parameter for simulations in the simdex.
+        """
+        parameter = 'r.R'
+        par_range = self.simdex.get_par_range()
+        self.assertAlmostEqual(par_range[parameter][0], 0, 2, \
+                        'range should be of the correct parameter')
+        self.assertAlmostEqual(par_range[parameter][1], 8.15, 3, \
+                        'range should be of the correct parameter')
+
     def test_plot(self):
         """Simdex.plot() should return [fig, lines, leg]"""
         
@@ -1325,10 +1336,10 @@ suite5 = unittest.TestLoader().loadTestsFromTestCase(UtilitiesTest)
 
 
 alltests = unittest.TestSuite()
-alltests.addTest(SimdexTest('test_filter_larger'))
-alltests.addTest(SimdexTest('test_filter_smaller'))
-alltests.addTest(SimdexTest('test_filter_multiple'))
-alltests.addTest(SimdexTest('test_filter_multiple_no_value'))
+#alltests.addTest(SimdexTest('test_filter_larger'))
+#alltests.addTest(SimdexTest('test_filter_smaller'))
+#alltests.addTest(SimdexTest('test_filter_multiple'))
+alltests.addTest(SimdexTest('parameter_range_test'))
 unittest.TextTestRunner(verbosity=1).run(alltests)
 #unittest.TextTestRunner(verbosity=1).run(suite3)
 

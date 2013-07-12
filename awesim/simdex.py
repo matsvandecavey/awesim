@@ -1192,7 +1192,6 @@ class Simdex:
             return Result(resdic, time=time, 
                           identifiers = self.identifiers, year=self.year)
         
-
         
     def _get_var_h5(self, var, selection=[]):
         """Get values of variables that are stored in the h5 file"""
@@ -1371,29 +1370,61 @@ class Simdex:
         
         return filename + ' created'
         
-    def postproc(self, ppparameters=True, ppvariables=False):
+    def get_par_max(self, parameter=None) :
         """
-        Run the post-processing if process object is defined the simdex.
-        The parameters and variables in process are stored in parameters_processed and variables_processed
-        
+        Get max parameter value per parameter.
         """
+        if parameter==None:
+            parskeys= self.parameters
+        else:
+            parskeys= parameter
+        max=[None]*len(parskeys)
+        for i,v in enumerate(parskeys):
+           try:
+               max[i]=self.parametervalues[i].max()
+           except:
+                print 'parameter %s not in simdex parameters' %v
+                
+        par_max= dict(zip(parskeys,max))
+        return par_max
         
-        if self.process != None:
-            if ppparameters:
-                for name, ref_name in self.process.parameters.iteritems():
-                    # postproc() geeft een error als een van de attributes niet gevonden kan worden.
-                    try:
-                        self.parameters_processed[name]= self.get(ref_name).values()
-                    except: AttributeError
-                                        
-#                print '%s', '%g\n' % ref_name, parameters_processed[name]
-                for i, p in self.parameters_processed.iteritems():
-                    print i, ' ', p
-            if ppvariables:
-                for name, rename in self.process.variables.iteritems():
-                    self.variables_processed[name] = self.get(ref_name).values()
-            
-            
+    def get_par_min(self, parameter=None) :
+        """
+        Get min parameter value per parameter.
+        """
+        if parameter==None:
+            parskeys= self.parameters
+        else:
+            parskeys= parameter
+        min=[None]*len(parskeys)
+        for i,v in enumerate(parskeys):
+            try:
+                min[i]=self.parametervalues[i].min()
+            except:
+                print 'parameter %s not in simdex parameters' %v
+                
+        par_min= dict(zip(parskeys,min))
+        return par_min
+        
+    def get_par_range(self, parameter=None):
+        """
+        get min and max of the parameter
+        """
+        if parameter==None:
+            parskeys= self.parameters
+        else:
+            parskeys= parameter
+        range_max=self.get_par_max(parskeys)
+        range_min=self.get_par_min(parskeys)
+        
+        par_range= dict(zip(range_min.keys(), zip(range_min.values(), range_max.values())))
+        return par_range
+        
+    def postproc(self):
+        """
+        post processing is done via "process" added in constructor __init__(process)
+        """
+        pass
                 
                 
     def apply(self, function_call):
