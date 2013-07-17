@@ -1370,55 +1370,86 @@ class Simdex:
         
         return filename + ' created'
         
-    def get_par_max(self, parameter=None) :
+    def get_par_max(self, parameter=None, NoInternalPars=True) :
         """
         Get max parameter value per parameter.
+        *NoInternalPars: Leave out the internal processing variables
+        /parameters starting with "_"
         """
         if parameter==None:
             parskeys= self.parameters
         else:
-            parskeys= parameter
-        max=[None]*len(parskeys)
-        for i,v in enumerate(parskeys):
-           try:
-               max[i]=self.parametervalues[i].max()
-           except:
-                print 'parameter %s not in simdex parameters' %v
-                
-        par_max= dict(zip(parskeys,max))
-        return par_max
-        
-    def get_par_min(self, parameter=None) :
-        """
-        Get min parameter value per parameter.
-        """
-        if parameter==None:
-            parskeys= self.parameters
-        else:
-            parskeys= parameter
-        min=[None]*len(parskeys)
-        for i,v in enumerate(parskeys):
+            if isinstance(parameter, basestring):
+                parskeys=[parameter]
+            else:
+                parskeys= parameter
+            
+        if NoInternalPars:
+            parskeys= [x for x in parskeys if not x.startswith('_')]
+            
+        pardic = dict(zip(self.parameters,self.parametervalues))
+        par_max=dict()
+        for v in parskeys:
             try:
-                min[i]=self.parametervalues[i].min()
+                par_max[v]=pardic[v].max()
             except:
                 print 'parameter %s not in simdex parameters' %v
                 
-        par_min= dict(zip(parskeys,min))
-        return par_min
+        return par_max
         
-    def get_par_range(self, parameter=None):
+    def get_par_min(self, parameter=None, NoInternalPars=True) :
         """
-        get min and max of the parameter
+        Get min parameter value per parameter.
+        *NoInternalPars: Leave out the internal processing variables\
+        parameters starting with "_"
         """
         if parameter==None:
             parskeys= self.parameters
         else:
-            parskeys= parameter
-        range_max=self.get_par_max(parskeys)
-        range_min=self.get_par_min(parskeys)
+            if isinstance(parameter, basestring):
+                parskeys=[parameter]
+            else:
+                parskeys= parameter
+            
+        if NoInternalPars:
+            parskeys= [x for x in parskeys if not x.startswith('_')]
         
-        par_range= dict(zip(range_min.keys(), zip(range_min.values(), range_max.values())))
+        pardic = dict(zip(self.parameters,self.parametervalues))
+        par_min=dict()
+        for v in parskeys:
+            try:
+                par_min[v]=pardic[v].min()
+            except:
+                print 'parameter %s not in simdex parameters' %v
+                
+        return par_min
+        
+    def get_par_range(self, parameter=None, NoInternalPars=True):
+        """
+        get min and max of the parameter
+        *NoInternalPars: Leave out the internal processing variables
+        /parameters starting with "_"
+        """
+        range_max=self.get_par_max(parameter,NoInternalPars=NoInternalPars)
+        range_min=self.get_par_min(parameter,NoInternalPars=NoInternalPars)
+        
+        par_range= dict(zip(range_min.keys(), zip(range_min.values(), \
+                range_max.values())))
         return par_range
+        
+    def get_SID_from_pars(self, *args, **kwargs):
+        """
+        Returns the names of the simulations (in the simdex) that satisfy 
+        kwargs <parameter:value>. 
+        """
+        appr_eq = lambda a,b,t: np.abs(a-b) < t*max(t,np.abs(b))
+        pardic=dict(zip(self.parameters,self.parametervalues))
+        SIDs=dict()
+        for name,value in kwargs.iteritems():
+            SIDs[name]=[self.simulations[x] for (x,y) in \
+                            enumerate(appr_eq(pardic[name],value, 0.001)) if y]
+         
+        return SIDs
         
     def postproc(self):
         """

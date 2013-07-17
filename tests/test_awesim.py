@@ -1064,7 +1064,7 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.5 (1..1+Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1+Tol) should return \
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
@@ -1083,7 +1083,7 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities.mat', 'LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_F.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return \
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
@@ -1102,14 +1102,15 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities_F.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return \
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
         self.simdex.h5.close()
 
     def test_filter_multiple_pars_no_value(self):
-        """Simdex.filter() selects all simulations with the indicated parameter\
+        """
+        Simdex.filter() selects all simulations with the indicated parameter\
         that has a value in the tolerance band 1-tolerance .. 1
         """
         filt_dic = {'r.R': 5.5, 'c1.C':''}
@@ -1121,7 +1122,7 @@ class SimdexTest(unittest.TestCase):
         exp_result = ['LinkedCapacities_C.mat', 'LinkedCapacities_D.mat', 'LinkedCapacities.mat', 'LinkedCapacities_A.mat', 'LinkedCapacities_B.mat', 'LinkedCapacities_F.mat']
         exp_result.sort()
         self.assertEqual(exp_result, self.simdex_filtered_fn,
-                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return\
+                         'filtering self.simdex with r.R = 5.5 (1..1-Tol) should return \
                          exp_result')
         self.assertEqual(filt_dic, self.simdex_filtered.filterset,
                          'After filtering, filterset has to be updated')
@@ -1129,7 +1130,7 @@ class SimdexTest(unittest.TestCase):
         
     def parameter_range_test(self):
         """
-        searches the min and the max parameter for simulations in the simdex.
+        searches the min and the max value for all parameters of simulations in the simdex.
         """
         parameter = 'r.R'
         par_range = self.simdex.get_par_range()
@@ -1137,7 +1138,33 @@ class SimdexTest(unittest.TestCase):
                         'range should be of the correct parameter')
         self.assertAlmostEqual(par_range[parameter][1], 8.15, 3, \
                         'range should be of the correct parameter')
-
+                        
+    def parameter_range_parameter_test(self):
+        """
+        searches the min and the max value of specified parameter simulations in the simdex.
+        """
+        parameters=['r.R','c1.C']
+        par_range = self.simdex.get_par_range(parameters)
+        self.assertAlmostEqual(par_range[parameters[0]][0], 0, 2, \
+                        'range should be of the correct parameter')
+        self.assertAlmostEqual(par_range[parameters[0]][1], 8.15, 3, \
+                        'range should be of the correct parameter')
+                        
+    def test_get_SID_from_pars(self):
+        """
+        return SIDs of simulations with the parameter:value in the input dict
+        """
+        mykeys=  ['Tstarts[1]','c1.C','c2.C','newParameter','r.R']
+        myvalues=[ 500.0, 1000.0, 1000.0, 5.0, 8.1499996185302734]
+        mypardic=dict(zip(mykeys,myvalues))
+        SIDs=self.simdex.get_SID_from_pars(**mypardic)
+        exp_result= [['SID0000'],['SID0003'],['SID0001','SID0002',  'SID0003', 
+        'SID0004', 'SID0005',  'SID0006','SID0007'],['SID0007'],['SID0006']]
+        for i,v in enumerate(mykeys):
+            self.assertEqual(SIDs[v], exp_result[i], 'Parameter {0} with value \
+            {1} should be found in simulation {2}'.format( v, myvalues[i], exp_result[i]))
+        
+        
     def test_plot(self):
         """Simdex.plot() should return [fig, lines, leg]"""
         
@@ -1338,8 +1365,9 @@ suite5 = unittest.TestLoader().loadTestsFromTestCase(UtilitiesTest)
 alltests = unittest.TestSuite()
 #alltests.addTest(SimdexTest('test_filter_larger'))
 #alltests.addTest(SimdexTest('test_filter_smaller'))
-#alltests.addTest(SimdexTest('test_filter_multiple'))
-alltests.addTest(SimdexTest('parameter_range_test'))
+#alltests.addTest(SimdexTest('test_filter_multiple'))y
+
+alltests.addTest(SimdexTest('test_get_SID_from_pars'))
 unittest.TextTestRunner(verbosity=1).run(alltests)
 #unittest.TextTestRunner(verbosity=1).run(suite3)
 
