@@ -1164,6 +1164,16 @@ class SimdexTest(unittest.TestCase):
             self.assertEqual(SIDs[v], exp_result[i], 'Parameter {0} with value \
             {1} should be found in simulation {2}'.format( v, myvalues[i], exp_result[i]))
         
+    def test_sort_SID(self):
+        """
+        Returns the SIDs of parameter for SID parameter values in ascending order.
+        """
+        parameter='r.R'
+        SIDs = self.simdex.sort_SID(parameter=parameter)
+        exp_result= ['SID0000','SID0001','SID0002',  'SID0003', 'SID0007', 
+        'SID0004', 'SID0005',  'SID0006']
+        self.assertEqual(SIDs,exp_result,'SIDs are not sorted correctly for \
+        parameter {0} with values {1}'.format(parameter, self.simdex.parametervalues[self.simdex.parameters.index(parameter)]))
         
     def test_plot(self):
         """Simdex.plot() should return [fig, lines, leg]"""
@@ -1367,7 +1377,7 @@ alltests = unittest.TestSuite()
 #alltests.addTest(SimdexTest('test_filter_smaller'))
 #alltests.addTest(SimdexTest('test_filter_multiple'))y
 
-alltests.addTest(SimdexTest('test_get_SID_from_pars'))
+alltests.addTest(SimdexTest('test_sort_SID'))
 unittest.TextTestRunner(verbosity=1).run(alltests)
 #unittest.TextTestRunner(verbosity=1).run(suite3)
 

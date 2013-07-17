@@ -1451,6 +1451,16 @@ class Simdex:
          
         return SIDs
         
+    def sort_SID(self, parameter):
+        """
+        returns SID's by parameter value for the specified parameter     
+        Reverse is used to indicate descending sorts
+        """         
+        parvals=self.parametervalues[self.parameters.index(parameter)]        
+        SIDs = [self.simulations[x] for x in np.argsort(parvals)]
+        
+        return SIDs
+        
     def postproc(self):
         """
         post processing is done via "process" added in constructor __init__(process)
