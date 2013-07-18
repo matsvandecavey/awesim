@@ -1166,7 +1166,15 @@ class SimdexTest(unittest.TestCase):
                         'range should be of the correct parameter')
         self.assertAlmostEqual(par_range[parameters[0]][1], 8.15, 3, \
                         'range should be of the correct parameter')
-                        
+    
+    def test_get_par_val(self):
+        
+        parameter='r.R'
+        val=self.simdex.get_par_val(parameter)
+        self.assertEqual(3, val[-1],'Wrong parameter values returned for parameter {0}.\
+        Expected {1}, got {2} '.format(parameter, [ 0. ,  3. ,  3. ,  3. , 5.5\
+        , 5.5,  8.14999962,  3. ], val))
+                    
     def test_get_SID_from_pars(self):
         """
         return SIDs of simulations with the parameter:value in the input dict
@@ -1394,7 +1402,7 @@ alltests = unittest.TestSuite()
 #alltests.addTest(SimdexTest('test_filter_smaller'))
 #alltests.addTest(SimdexTest('test_filter_multiple'))y
 
-alltests.addTest(SimdexTest('test_append_simdex'))
+alltests.addTest(SimdexTest('test_get_par_val'))
 unittest.TextTestRunner(verbosity=1).run(alltests)
 #unittest.TextTestRunner(verbosity=1).run(suite3)
 

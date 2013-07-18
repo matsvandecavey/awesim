@@ -271,7 +271,7 @@ class Simdex:
             
         return s
                     
-    def scan(self, folder='', process=None, mat_files=True, txt_files=True, timecheck=True):
+    def scan(self, folder='', process=None, mat_files=True, txt_files=False, timecheck=True):
         """
         Scan a folder for result files (.mat .txt) files and add them to the simdex
         
@@ -293,9 +293,14 @@ class Simdex:
         
         if mat_files:
             matfilenames = self.__get_files(folder, '.mat')
+        else:
+            matfilenames = []
 
         if txt_files:
             txtfilenames = self.__get_files(folder, '.txt')
+        else:
+            txtfilenames =[]
+                    
         try:
             filenames = txtfilenames + matfilenames
         except IOError:
@@ -1454,6 +1459,18 @@ class Simdex:
         par_range= dict(zip(range_min.keys(), zip(range_min.values(), \
                 range_max.values())))
         return par_range
+    
+    def get_par_val(self, parameter):
+        """
+        return list with the values of the parameter, for all simulations in the simdex
+        """
+        parval=None        
+        try:
+            parval = list(self.parametervalues[self.parameters.index(parameter)])
+        except:
+            'parameter {} not found in simdex'.format(parameter)
+        
+        return parval
         
     def get_SID_from_pars(self, *args, **kwargs):
         """
