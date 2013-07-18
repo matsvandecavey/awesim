@@ -271,9 +271,9 @@ class Simdex:
             
         return s
                     
-    def scan(self, folder='', process=None, timecheck=True):
+    def scan(self, folder='', process=None, mat_files=True, txt_files=True, timecheck=True):
         """
-        Scan a folder for .mat files and add them to the simdex
+        Scan a folder for result files (.mat .txt) files and add them to the simdex
         
         Parameters
         ----------
@@ -287,14 +287,17 @@ class Simdex:
         
         #pdb.set_trace()
         
-        if process is None:
-            process = self.process
         
         if folder == '' :
             folder = os.getcwd()
         
+        if mat_files:
+            matfilenames = self.__get_files(folder, '.mat')
+
+        if txt_files:
+            txtfilenames = self.__get_files(folder, '.txt')
         try:
-            filenames = self.__get_files(folder, '.mat')
+            filenames = txtfilenames + matfilenames
         except IOError:
             raise IOError('folder %s does not exist' % (folder))
         
@@ -306,6 +309,14 @@ class Simdex:
         for i in range(len(filenames)):
             full_path_filenames.append(os.path.join(folder,filenames[i]))
         
+        self.add_simulations(full_path_filenames=full_path_filenames, process=process, timecheck=timecheck)
+        
+            
+    def add_simulations(self, full_path_filenames=None, process=None, timecheck=True):
+        
+        
+        if process is None:
+            process = self.process
         # run the following loop only when this is the first time files are
         # being indexed
         if self.simulations == []:
@@ -783,7 +794,14 @@ class Simdex:
         # during the index_one_sim calls, the process is modified. It has to be
         # linked to the simdex.
         self.process = process
-            
+    
+
+    def append_simdex(self, other_simdex=None):
+        """
+        merge two simdex
+        """
+        self.add_simulations(other_simdex.files.values())
+    
     def filter_similar(self, SID):
         '''
         Return a new simdex with similar simulations as SID (SIDxxxx)        

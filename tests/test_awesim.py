@@ -11,6 +11,7 @@ from __future__ import division
 import pdb
 import numpy as np
 import unittest
+import copy
 from os import getcwd, path, remove
 from cStringIO import StringIO
 import sys
@@ -775,6 +776,22 @@ class SimdexTest(unittest.TestCase):
         self.assertEqual(len(self.simdex.simulations), 16)
 
 
+    def test_append_simdex(self):
+        """
+        Returns a simdex with the resultfiles from the second simdex appended to the first one
+        """
+        selecting_par='r.R'
+        sims_sorted= self.simdex.sort_SID(selecting_par)
+        simdex_low= [sims_sorted[x] for x in range(2)]
+        simdex_high= [sims_sorted[x] for x in arange(2)+ (len(sims_sorted)-2)]
+        s1=self.simdex.filter_selection(simdex_low)
+        s2=self.simdex.filter_selection(simdex_high)
+        s3=copy.deepcopy(s2)
+        s3.append_simdex(s1)
+        self.assertItemsEqual(s3.files.values(),s2.files.values()+s1.files.values(), \
+        'files in new simdex ar not the same as files in the two original simdex\'s')
+        
+        
     def test_exist(self):
         """
         Test if :
@@ -1377,7 +1394,7 @@ alltests = unittest.TestSuite()
 #alltests.addTest(SimdexTest('test_filter_smaller'))
 #alltests.addTest(SimdexTest('test_filter_multiple'))y
 
-alltests.addTest(SimdexTest('test_sort_SID'))
+alltests.addTest(SimdexTest('test_append_simdex'))
 unittest.TextTestRunner(verbosity=1).run(alltests)
 #unittest.TextTestRunner(verbosity=1).run(suite3)
 
