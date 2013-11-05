@@ -202,7 +202,12 @@ class Simdex:
             self.h5 = tbl.openFile(self.h5_path, 'w', title='Simdex file')
             self.h5.close()
         else:
-            raise NotImplementedError("Remove the file first !")
+            newFile = raw_input('append to existing (Y/N)? : \n')
+            if newFile== 'Y' or newFile=='y':
+                self.h5 = tbl.openFile(self.h5_path, 'a', title='Simdex file')
+                self.h5.close()
+            else:
+                raise NotImplementedError("Remove the file first !")
         # dictionary with the filters previously applied on this simdex
         self.filterset = dict()
 
@@ -803,10 +808,21 @@ class Simdex:
 
     def append_simdex(self, other_simdex=None):
         """
-        merge two simdex
+        Merge two simdex.
+        Avoid that the h5 pytable loads a result file more than once.
+        Warning if a resultfile is not appended to the h5 file.
         """
-        self.add_simulations(other_simdex.files.values())
-    
+
+        simdexOrigFiles=set(self.files.values())
+        simdexAppendFiles = set(other_simdex.files.values())
+        if simdexAppendFiles.difference(simdexOrigFiles):
+            self.add_simulations(list(simdexAppendFiles.difference(simdexOrigFiles)))
+            if simdexAppendFiles.intersection(simdexOrigFiles):
+                print "The following result files are already in the simdex: {0)".format(simdexAppendFiles.intersection(simdexOrigFiles))
+        else:
+            print "All of the files in the appended simdex where already in the simdex. Following files not added: {0}".format(simdexAppendFiles.intersection(simdexOrigFiles))    
+            
+            
     def filter_similar(self, SID):
         '''
         Return a new simdex with similar simulations as SID (SIDxxxx)        

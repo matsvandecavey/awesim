@@ -1396,13 +1396,13 @@ suite3 = unittest.TestLoader().loadTestsFromTestCase(SimulationTest)
 suite4 = unittest.TestLoader().loadTestsFromTestCase(SimdexTest)
 suite5 = unittest.TestLoader().loadTestsFromTestCase(UtilitiesTest)
 
-
-alltests = unittest.TestSuite()
-#alltests.addTest(SimdexTest('test_filter_larger'))
-#alltests.addTest(SimdexTest('test_filter_smaller'))
-#alltests.addTest(SimdexTest('test_filter_multiple'))y
-
-alltests.addTest(SimdexTest('test_get_par_val'))
-unittest.TextTestRunner(verbosity=1).run(alltests)
-#unittest.TextTestRunner(verbosity=1).run(suite3)
+#
+#alltests = unittest.TestSuite()
+##alltests.addTest(SimdexTest('test_filter_larger'))
+##alltests.addTest(SimdexTest('test_filter_smaller'))
+##alltests.addTest(SimdexTest('test_filter_multiple'))y
+#
+#alltests.addTest(SimdexTest('test_get_par_val'))
+#unittest.TextTestRunner(verbosity=1).run(alltests)
+unittest.TextTestRunner(verbosity=1).run(suite3)
 
