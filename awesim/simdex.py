@@ -111,6 +111,7 @@ class Simdex:
         - self.identifiers: optional dictionary with short meaningful identifiers
           for the simulations.  Is used as legend in plots by default (unless 
           empty).
+        - self.plot_name
           
         
     Most important methods (* = implemented):
@@ -202,8 +203,8 @@ class Simdex:
             self.h5 = tbl.openFile(self.h5_path, 'w', title='Simdex file')
             self.h5.close()
         else:
-            newFile = raw_input('append to existing (Y/N)? : \n')
-            if newFile== 'Y' or newFile=='y':
+            appendFile = raw_input('append to existing (Y/N)? : \n')
+            if appendFile== 'Y' or appendFile=='y':
                 self.h5 = tbl.openFile(self.h5_path, 'a', title='Simdex file')
                 self.h5.close()
             else:
@@ -312,7 +313,15 @@ class Simdex:
             raise IOError('folder %s does not exist' % (folder))
         
         if len(filenames) == 0:
-            raise ValueError("No .mat files found in %s" % (folder))
+            if mat_files:
+                if txt_files:
+                    raise ValueError("No .mat and no .txt files found in %s" % (folder))
+                else:
+                    raise ValueError("No .mat files found in %s. Search also .txt files by adjusting modifier txt_files to True" % (folder))
+            elif txt_files:
+                raise ValueError("No .txt files found in %s. Search also .mat files by adjusting modifier mat_files to True" % (folder))
+            else:
+                raise ValueError("Specify to search either .txt files (txt_files=True), .mat files (mat_files=True) or both found in %s" % (folder))
         
         # Convert to full path filenames to avoid confusion
         full_path_filenames = []

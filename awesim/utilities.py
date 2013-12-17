@@ -26,7 +26,59 @@ def make_datetimeindex(array_in_seconds, year):
     
     return pd.DatetimeIndex(datetimes)
 
+def seconds_from_start(timestamp, startTime):
+    """
+    Returns the number of seconds between the timestamp (datetime.datetime)
+    and a certain timestamp "startTime"
+    startTime can also be a tuple (year[, month[, day]])
+    """
+    sec=None
+    try: 
+        sec = (timestamp - startTime).total_seconds()
+    except:
+        dateinfo=[2010, 01, 01]
+        try:
+            for i, v in enumerate(startTime):
+                dateinfo[i]=v
+            stT= datetime(dateinfo[0],dateinfo[1],dateinfo[2])
+            sec = (timestamp - stT).total_seconds()
+        except:
+            try:
+                dateinfo[0]=int(startTime)
+                stT= datetime(dateinfo[0],dateinfo[1],dateinfo[2])
+                sec = (timestamp - stT).total_seconds()
+            except:
+                pass
+            
+    return sec
 
+def timedate_from_seconds(seconds, startTime):
+    """
+    Return a datetime object by specifying a startTime (tuple or datetime) and a relative amount of
+    seconds.
+    """    
+
+    date=None
+    sec=timedelta(seconds=int(seconds))
+    try:
+        date=startTime+sec
+    except:
+        dateinfo=[2010, 01, 01]
+        try:
+            for i, v in enumerate(startTime):
+                dateinfo[i]=int(v)
+            stT= datetime(dateinfo[0],dateinfo[1],dateinfo[2])
+            date=stT+sec
+        except:
+            try:
+                dateinfo[0]=int(startTime)
+                stT= datetime(dateinfo[0],dateinfo[1],dateinfo[2])
+                date=stT+sec
+            except:
+                pass
+    
+    return date
+    
 def aggregate_by_time(signal, time, period=86400, interval=900, year=2012):
     """
     Function to calculate the aggregated average of a timeseries by 
